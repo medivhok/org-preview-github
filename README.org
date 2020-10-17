@@ -1,5 +1,5 @@
 
-* Table of Contents
+* org-preview-github
 
 [[https://travis-ci.com/medivhok/org-preview-github.svg?branch=main]]
 
