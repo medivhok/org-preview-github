@@ -1,0 +1,78 @@
+#+title: Setup For The Tests
+#+startup: overview
+
+* Table of Contents
+:PROPERTIES:
+:TOC:      :include all :depth 2 :ignore (this)
+:END:
+:CONTENTS:
+- [[#the-cask-file][The Cask File]]
+- [[#travis-configuration][Travis Configuration]]
+:END:
+
+* The Cask File
+
+[[https://github.com/medivhok/org-preview-github/blob/master/Cask][Cask]]
+#+begin_src emacs-lisp :tangle ../Cask
+;; -*- mode: cask; lexical-binding: t; -*-
+;;
+;; NOTE:
+;;   This file is generated automaticly. To modify it, see the file
+;;   'docs/Test.org'.
+;;
+(source gnu)
+(source melpa-stable)
+
+(development
+ (depends-on "buttercup")
+ (depends-on "org"))
+#+end_src
+
+* Travis Configuration
+
+#+begin_quote
+Install Emacs on Travis CI -- [[https://github.com/flycheck/emacs-travis][emacs-travis]]
+#+end_quote
+
+[[https://github.com/medivhok/org-preview-github/blob/master/.travis.yml][.travis.yml]]
+#+begin_src yaml :tangle ../.travis.yml
+language: emacs-lisp
+# Emacs fails to build in container-based builds on Travis
+# See https://github.com/travis-ci/travis-ci/issues/9061
+# and https://github.com/moby/moby/issues/22801
+sudo: required
+dist: trusty
+cache:
+  - directories:
+      # Cache stable Emacs binaries (saves 1min per job)
+      - "$HOME/emacs/"
+# Allow Emacs snapshot builds to fail and don’t wait for these as they can take
+# a looooong time
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: EMACS_VERSION=snapshot
+env:
+  - EMACS_VERSION=24.3
+  - EMACS_VERSION=25.1-rc2
+  - EMACS_VERSION=25.3
+  # https://github.com/flycheck/emacs-travis/issues/22
+  # - EMACS_VERSION=26.0.91 PRETEST=yes
+  - EMACS_VERSION=snapshot
+before_install:
+  # Configure $PATH: Executables are installed to $HOME/bin
+  - export PATH="$HOME/bin:$PATH"
+  # Download the makefile to emacs-travis.mk
+  - wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
+  # Install Emacs (according to $EMACS_VERSION) and Cask
+  - make -f emacs-travis.mk install_emacs
+  - make -f emacs-travis.mk install_cask
+  # Install Texinfo, if you need to build info manuals for your project
+  - make -f emacs-travis.mk install_texinfo
+install:
+  # Install your dependencies
+  - cask install
+script:
+  # Run your tests
+  - cask exec buttercup -L .
+#+end_src

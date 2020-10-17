@@ -1,0 +1,102 @@
+#+title: org-preview-github.el
+#+startup: overview
+
+* Table of Contents
+:PROPERTIES:
+:TOC:      :include all :depth 2 :ignore (this)
+:END:
+:CONTENTS:
+- [[#the-mode-definition][The Mode Definition]]
+- [[#appendix][Appendix]]
+  - [[#the-library-file][The Library File]]
+  - [[#the-test-file][The Test File]]
+:END:
+
+* The Mode Definition
+
+#+name: org-preview-github-mode
+#+begin_src emacs-lisp :tangle no
+;;;###autoload
+(define-minor-mode org-preview-github-mode
+  "Toggle org-preview-github mode.
+Interactively with no argument, this command toggles the mode.
+A positive prefix argument enables the mode, any other prefix
+argument disables it.  From Lisp, argument omitted or nil enables
+the mode, `toggle' toggles the state."
+  :init-value nil
+  :lighter " Github-Preview")
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref unit-tests :tangle no
+(describe "org-preview-github-mode"
+  (it "should enable the mode when called non-interactively"
+    (with-temp-buffer
+      (expect (or (not (boundp org-preview-github-mode))
+                  (not org-preview-github-mode))
+              :to-be t)
+      (org-preview-github-mode)
+      (expect org-preview-github-mode :to-be t)))
+
+  (it "should toggle the mode when called interactively"
+    (with-temp-buffer
+      (expect (or (not (boundp org-preview-github-mode))
+                  (not org-preview-github-mode))
+              :to-be t)
+      (call-interactively 'org-preview-github-mode)
+      (expect org-preview-github-mode :to-be t))))
+#+end_src
+
+* Appendix
+** The Library File
+
+#+begin_src emacs-lisp :noweb no-export :tangle ../org-preview-github.el
+;;; org-preview-github.el --- Show an org preview on Github -*- lexical-binding: t; -*-
+
+;; Author: Jean Gregory Verret <gregory.verret@gmail.com>
+;; Created: 2020/10/12
+;; Version: 0.0.1
+;; URL: https://github.com/medivhok/org-preview-github
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; A minor mode to show a preview of an org file on github.
+
+;;; Code:
+<<org-preview-github-mode>>
+
+(provide 'org-preview-github)
+;;; org-preview-github.el ends here
+#+end_src
+
+** The Test File
+
+#+begin_src emacs-lisp :noweb no-export :noweb-sep "\n\n" :tangle ../tests/test-org-preview-github.el
+;;; test-org-preview-github.el --- The org-preview-github tests -*- lexical-binding: t -*-
+
+;;; commentary:
+
+;;; code:
+(require 'org-preview-github)
+
+<<unit-tests>>
+
+;; Local Variables:
+;; eval: (buttercup-minor-mode)
+;; End:
+
+(provide 'test-org-preview-github)
+;;; test-org-preview-github.el ends here
+#+end_src
